@@ -56,3 +56,14 @@ http://django-mysql.readthedocs.io/en/stable/checks.html
 pip install django-mysql
 
 Add 'django_mysql' to your INSTALLED_APPS settings file.
+
+pip install djangorestframework
+
+Add 'rest_framework' to your INSTALLED_APPS settings file.
+
+DROP DATABASE
+
+mysql -u root -p
+DROP DATABASE wj_server_db;
+CREATE DATABASE wj_server_db CHARACTER SET UTF8;
+
