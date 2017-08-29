@@ -1,26 +1,51 @@
 from django.db.models import (
+	BooleanField,
 	CharField,
+	EmailField,
 	IntegerField, 
 	DateTimeField, 
-	Model
+	Model,
+	OneToOneField
 )
 from django_mysql.models import (
 	JSONField,
 	ListCharField
 )
 
-# Create your models here.
+class RecruiterProfile(Model):
+	name = CharField(max_length=50, null=False, unique=True)
+	email = EmailField(unique=True)
+	contact_number = CharField(max_length=10, null=False, unique=True)
+	address = CharField(max_length=100, null=False)
+	#time
+	created_at = DateTimeField(auto_now_add=True)
+	updated_at = DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.email
+
 class JobProfile(Model):
-	job_title = CharField(max_length=20)#,null=False)
-	job_type = CharField(max_length=20)#,null=False)
+	recruiter_id = OneToOneField(RecruiterProfile)
+	job_title = CharField(max_length=20,null=False)
+	job_type = CharField(max_length=20,null=False)
+	job_status = CharField(max_length=10,null=False)
+	#description
+	opening_count = IntegerField(null=True)
+	urgent = BooleanField(default=False)
+	work_time = JSONField(null=True)
+	address = CharField(max_length=100,null=True)
+	address_coordinate = JSONField(null=True)
+	station = CharField(max_length=20,null=True)
+	#salary
+	hour_wage_low = IntegerField(null=True)
+	hour_wage_high = IntegerField(null=True)
+	#Required Skills
+	req_gender = CharField(max_length=6,null=True)
+	req_education = CharField(max_length=20,null=True)
+	req_japanese_lang_level = IntegerField(null=True)
+	req_experience_level = BooleanField(default=False)
 	# skill = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11))
-	# req_lang = ListCharField(base_field=CharField(max_length=10),size=10)
-	# min_salary = IntegerField(null=True)
-	# max_salary = IntegerField(null=True)
-	# landmark = models.CharField(max_length=30,null=False)
-	# address = models.CharField(max_length=100,null=False)
 	# certification = ListCharField(base_field=CharField(max_length=10),size=10)
-	# working_hour_description = models.CharField(max_length=100,null=False)
-	# address_coordinate = JSONField()
-	# date_job_posted = DateTimeField(auto_now_add=True)
-	# job_status = models.CharField(max_length=10,null=False)
+	#time
+	created_at = DateTimeField(auto_now_add=True)
+	updated_at = DateTimeField(auto_now=True)

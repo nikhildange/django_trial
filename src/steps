@@ -63,6 +63,9 @@ Add 'rest_framework' to your INSTALLED_APPS settings file.
 
 DROP DATABASE
 
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+find . -path "*/migrations/*.pyc" -delete
+
 mysql -u root -p
 DROP DATABASE wj_server_db;
 CREATE DATABASE wj_server_db CHARACTER SET UTF8;

@@ -4,10 +4,10 @@ from .models import UserProfile, JobApplied
 class UserProfileSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserProfile
-		fields = ('contact_number', 'display_lang')
+		fields = ('name', 'email', 'display_lang', 'address', 'user_status')
 
 
 class UserJobSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = JobApplied
-		fields = ('user_profile_id', 'job_profile_id')
+		fields = ('user_profile_id', 'job_profile_id', 'job_applied_status')
