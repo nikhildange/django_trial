@@ -1,0 +1,58 @@
+
+INSTALL PYTHON
+
+https://tecadmin.net/install-python-3-6-ubuntu-linuxmint/#
+
+INSTALL MYSQL
+
+https://www.digitalocean.com/community/tutorials/how-to-use-mysql-or-mariadb-with-your-django-application-on-ubuntu-14-04
+
+https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-16-04
+
+INSTALL PIP
+
+alias python=python3
+
+INSTALL SUBLIME
+
+http://tipsonubuntu.com/2017/05/30/install-sublime-text-3-ubuntu-16-04-official-way/#prettyPhoto
+
+INSTALL DJANGO
+
+https://www.howtoforge.com/tutorial/how-to-install-django-on-ubuntu/
+
+https://www.digitalocean.com/community/tutorials/how-to-use-mysql-or-mariadb-with-your-django-application-on-ubuntu-14-04
+
+https://www.codingforentrepreneurs.com/blog/create-a-blank-django-project/
+
+COMMANDS:
+
+sudo apt-get update
+sudo apt-get install python-pip python-dev mysql-server libmysqlclient-dev
+sudo mysql_install_db
+apt-get install python3-pip
+which pip3
+ln -s /usr/bin/pip3 /usr/bin/pip
+mkdir wj_server_dir && cd wj_server_dir/
+virtualenv --python=python3 .
+source bin/activate
+pip3 -V
+pip3 install django==1.11.4
+mkdir src && cd src
+django-admin startproject wj_server
+import MySQLdb as Database
+pip3 install django mysqlclient
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+pip freeze > requirements.txt
+
+ISSUE : "no named module "import django_mysql""
+
+http://django-mysql.readthedocs.io/en/stable/installation.html
+http://django-mysql.readthedocs.io/en/stable/checks.html
+
+pip install django-mysql
+
+Add 'django_mysql' to your INSTALLED_APPS settings file.
