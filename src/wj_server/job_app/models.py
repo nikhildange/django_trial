@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.db.models import (
 	BooleanField,
 	CharField,
 	EmailField,
+	ForeignKey,
 	IntegerField, 
-	DateTimeField, 
+	DateTimeField,
+	ManyToManyField, 
 	Model,
 	OneToOneField
 )
@@ -13,8 +16,10 @@ from django_mysql.models import (
 )
 
 class RecruiterProfile(Model):
-	name = CharField(max_length=50, null=False, unique=True)
-	email = EmailField(unique=True)
+	user = OneToOneField(settings.AUTH_USER_MODEL, default=1)
+	# name = CharField(max_length=50, null=False, unique=True)
+	#contact
+	# email = EmailField(null=False, unique=True)
 	contact_number = CharField(max_length=10, null=False, unique=True)
 	address = CharField(max_length=100, null=False)
 	#time
@@ -22,10 +27,10 @@ class RecruiterProfile(Model):
 	updated_at = DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.email
+		return self.user.email
 
 class JobProfile(Model):
-	recruiter_id = OneToOneField(RecruiterProfile)
+	recruiter = ForeignKey(RecruiterProfile)
 	job_title = CharField(max_length=20,null=False)
 	job_type = CharField(max_length=20,null=False)
 	job_status = CharField(max_length=10,null=False)

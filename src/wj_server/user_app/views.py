@@ -1,24 +1,28 @@
-from rest_framework import generics
+from rest_framework.generics import (
+	ListCreateAPIView,
+	RetrieveUpdateDestroyAPIView,
+	DestroyAPIView
+	)
 from .models import UserProfile, JobApplied
 from .permissions import IsAdminOrReadOnly
 from .serializers import UserProfileSerializer, UserJobSerializer
 
-class UserProfileList(generics.ListCreateAPIView):
+class UserProfileList(ListCreateAPIView):
 	queryset = UserProfile.objects.all()
 	serializer_class = UserProfileSerializer
 	permission_classes = (IsAdminOrReadOnly,)
 
-class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+class UserProfileDetail(RetrieveUpdateDestroyAPIView):
 	queryset = UserProfile.objects.all()
 	serializer_class = UserProfileSerializer
 	permission_classes = (IsAdminOrReadOnly,)
 
-class UserJobList(generics.ListCreateAPIView):
+class UserJobList(ListCreateAPIView):
 	queryset = JobApplied.objects.all()
 	serializer_class = UserJobSerializer
 	permission_classes = (IsAdminOrReadOnly,)
 
-class UserJobDestroy(generics.DestroyAPIView):
+class UserJobDestroy(DestroyAPIView):
 	queryset = JobApplied.objects.all()
 	serializer_class = UserJobSerializer
 	permission_classes = (IsAdminOrReadOnly,)

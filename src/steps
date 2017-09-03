@@ -69,4 +69,6 @@ find . -path "*/migrations/*.pyc" -delete
 mysql -u root -p
 DROP DATABASE wj_server_db;
 CREATE DATABASE wj_server_db CHARACTER SET UTF8;
+python manage.py createsuperuser
+
 
