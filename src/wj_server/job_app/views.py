@@ -13,6 +13,10 @@ from rest_framework.generics import (
 	UpdateAPIView,
 	ListAPIView,
 	)
+from rest_framework.pagination import (
+	LimitOffsetPagination,
+	PageNumberPagination,
+	)
 from rest_framework.permissions import (
 	AllowAny,
 	IsAuthenticated,
@@ -21,9 +25,14 @@ from rest_framework.permissions import (
 	)
 
 from .models import JobProfile
+from .pagination import (
+	JobProfilePageNumberPagination,
+	JobProfileLimitOffsetPagination,
+	)
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (
 	JobProfileCreateUpdateSerializer,
+	JobProfileListSerializer,
 	JobProfileSerializer
 )
 
@@ -51,14 +60,15 @@ class JobProfileUpdate(RetrieveUpdateAPIView):
 	permission_classes = [IsOwnerOrReadOnly]
 
 class JobProfileList(ListAPIView):
-	serializer_class = JobProfileSerializer
+	serializer_class = JobProfileListSerializer
 	permission_classes = [AllowAny]
 	filter_backends = [SearchFilter, OrderingFilter]
 	search_fields = ['job_type','job_title','id',]
+	pagination_class = JobProfilePageNumberPagination	# LimitOffsetPagination ?limit=1
 
 	def get_queryset(self, *args, **kwargs):
 		# queryset_list = super(JobProfileList, self).get_queryset(*args,*kwargs)
-		queryset_list = JobProfile.objects.all()
+		queryset_list = JobProfile.objects.all() #filter(user=self.request.user)
 		query = self.request.GET.get("q")
 		if query:
 			queryset_list = queryset_list.filter(
@@ -68,3 +78,7 @@ class JobProfileList(ListAPIView):
 				# Q(recruiter__email__icontains=query)
 				).distinct()
 		return queryset_list
+
+# http://127.0.0.1:8000/jobs/?q=active&ordering=-id&search=swe
+
+
