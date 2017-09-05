@@ -15,11 +15,14 @@ from django_mysql.models import (
 	ListCharField
 )
 
+def address_format():
+	return {'building':'','district':'','pincode':''}
+
 class Employer(Model):
-	user = OneToOneField(settings.AUTH_USER_MODEL, default = 1)
+	user = OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
 	#
 	contact_number = CharField(max_length=10, null=False)
-	address = JSONField(null=False)
+	address = JSONField(default=address_format)
 	#time
 	created_at = DateTimeField(auto_now_add=True)
 	updated_at = DateTimeField(auto_now=True)
