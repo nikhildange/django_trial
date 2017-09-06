@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_mysql.models import (
-	JSONField
+	JSONField,
+	ListCharField
 	)
 from rest_framework.serializers import (
 	CharField,
@@ -10,34 +11,49 @@ from rest_framework.serializers import (
 	SerializerMethodField,
 	ValidationError
 	)
-from .models import Employer
+from .models import (
+	Seeker
+	)
 
 User = get_user_model()
 
-class EmployerDetailSerializer(ModelSerializer):
+class SeekerDetailSerializer(ModelSerializer):
 	class Meta:
 		model = User
 		fields = [
-		'username',
+		'first_name',
+		'last_name',
 		'email',
 		]
-		
-class EmployerDetailSerializer(ModelSerializer):
-	user = EmployerDetailSerializer(read_only=True)
+
+class SeekerDetailSerializer(ModelSerializer):
+	user = SeekerDetailSerializer(read_only=True)
 	class Meta:
-		model = Employer
-		fields = ['user', 'contact_number', 'address', 'created_at']
+		model = Seeker
+		fields = ['user', 'gender', 'dob', 'user_status', 'contact_number', 'station_home',
+		'education', 'certification', 'japanese_lang_level', 'jlpt_score',
+		'language_know', 'job_interested', 'job_experienced', 
+		'current_salary', 'urgent', 
+		'profile_pic_path', 'residance_card_path',
+		'created_at', 'updated_at', 'last_applied_at', 'last_login', 
+		'display_lang', 'fb_access_token']
 
-class EmployerListSerializer(ModelSerializer):
-	username = SerializerMethodField()
+class SeekerListSerializer(ModelSerializer):
+	first_name = SerializerMethodField()
+	last_name = SerializerMethodField()
+	seeker_id = SerializerMethodField()
 	class Meta:
-		model = Employer
-		fields = ['id', 'username']
-	def get_username(self, obj):
-		return str(obj.user.username)
+		model = Seeker
+		fields = ['seeker_id', 'first_name', 'last_name']
+	def get_seeker_id(self, obj):
+		return str(obj.user.id)
+	def get_first_name(self, obj):
+		return str(obj.user.first_name)
+	def get_last_name(self, obj):
+		return str(obj.user.last_name)
 
 
-class EmployerLoginSerializer(ModelSerializer):
+class SeekerLoginSerializer(ModelSerializer):
 	token = CharField(allow_blank=True, read_only=True)
 	email = CharField(required=True, allow_blank=False)
 	class Meta:
@@ -67,22 +83,20 @@ class EmployerLoginSerializer(ModelSerializer):
 		data["token"] = "RANDOM TOKEN"				
 		return data
 
-class EmployerCreateSerializer(ModelSerializer):
-	username = CharField(source='user.username')
+class SeekerCreateSerializer(ModelSerializer):
+	first_name = CharField(source='user.first_name')
+	last_name = CharField(source='user.last_name')
 	email = EmailField(source='user.email')
 	password = CharField(source='user.password')
 	class Meta:
-		model = Employer
+		model = Seeker
 		fields = [
-		'username',
+		'first_name',
+		'last_name',
 		'email',
-		'password',
-		'contact_number',
-		'address',
+		'password'
 		]
 		extra_kwargs = {"password":
-							{"write_only": True},
-						"address":
 							{"write_only": True}
 						}
 
@@ -107,22 +121,15 @@ class EmployerCreateSerializer(ModelSerializer):
 	
 	def create(self, validated_data):
 		user = validated_data['user']
-		username = user['username']
+		first_name = user['first_name']
+		last_name = user['last_name']
 		email = user['email']
 		password = user['password']
-		contact_number = validated_data['contact_number']
-		address = validated_data['address']
-		print(address)
 		user_obj = User(
-			username = username,
+			first_name = first_name,
+			last_name = last_name,
 			email = email,
 			)
 		user_obj.set_password(password)
 		user_obj.save()
-		employer_obj = Employer(
-			user = user_obj,
-			contact_number = contact_number,
-			address = address
-			)
-		employer_obj.save()
 		return validated_data

@@ -21,6 +21,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^employers/',include('employers.urls', namespace='employers-api')),
+    url(r'^seekers/',include('seekers.urls', namespace='seekers-api')),
     url(r'^jobs/',include('job_app.urls', namespace='jobs')),
     url(r'^users/',include('user_app.urls', namespace='users')),
     url(r'^api-token-auth/',obtain_auth_token),
