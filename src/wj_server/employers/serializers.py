@@ -30,9 +30,12 @@ class EmployerDetailSerializer(ModelSerializer):
 
 class EmployerListSerializer(ModelSerializer):
 	username = SerializerMethodField()
+	employer_id = SerializerMethodField()
 	class Meta:
 		model = Employer
-		fields = ['id', 'username']
+		fields = ['employer_id','username']
+	def get_employer_id(self, obj):
+		return str(obj.user.id)
 	def get_username(self, obj):
 		return str(obj.user.username)
 

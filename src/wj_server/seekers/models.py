@@ -24,7 +24,7 @@ class Seeker(Model):
 	user = OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
 	gender = CharField(max_length=6,null=False)
 	dob = DateField(null=True)
-	user_status = CharField(max_length=10,null=False)
+	seeker_status = CharField(max_length=10,null=False)
 	#contact
 	contact_number = CharField(max_length=10,null=False,unique=True)
 	station_home = CharField(max_length=20,null=True)
