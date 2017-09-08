@@ -23,7 +23,7 @@ from .pagination import (
 	EmployerListPagination,
 	)
 from .permissions import (
-	IsOwnerOrReadOnly
+	IsEmployer
 	)
 from .serializers import (
 	EmployerCreateSerializer,
@@ -40,23 +40,23 @@ class EmployerCreateView(CreateAPIView):
 class EmployerListView(ListAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerListSerializer
-	permission_classes = [IsAdminUser]
 	pagination_class = EmployerListPagination
+	permission_classes = [IsAuthenticated]
 
 class EmployerDetailView(RetrieveAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsAuthenticated]
 
 class EmployerUpdateView(RetrieveUpdateAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerDetailSerializer
-	permission_classes = [IsOwnerOrReadOnly, IsAdminUser]
+	permission_classes = [IsEmployer]
 
 class EmployerDeleteView(DestroyAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsEmployer]
 		
 class EmployerLoginView(APIView):
 	serializer_class = EmployerLoginSerializer

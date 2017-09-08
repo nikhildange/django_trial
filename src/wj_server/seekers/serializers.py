@@ -30,7 +30,7 @@ class SeekerDetailSerializer(ModelSerializer):
 	user = SeekerDetailSerializer(read_only=True)
 	class Meta:
 		model = Seeker
-		fields = ['user', 'gender', 'dob', 'user_status', 'contact_number', 'station_home',
+		fields = ['user', 'gender', 'dob', 'seeker_status', 'contact_number', 'station_home',
 		'education', 'certification', 'japanese_lang_level', 'jlpt_score',
 		'language_know', 'job_interested', 'job_experienced', 
 		'current_salary', 'urgent', 

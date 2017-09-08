@@ -50,6 +50,8 @@ class Seeker(Model):
 	#token
 	fb_access_token = CharField(max_length=255,null=True)
 
+	USER_FIELD = 'email'
+
 	def __str__(self):
 		return self.user.email
 

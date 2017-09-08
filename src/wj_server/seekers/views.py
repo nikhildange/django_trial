@@ -23,7 +23,7 @@ from .pagination import (
 	SeekerListPagination,
 	)
 from .permissions import (
-	IsOwnerOrReadOnly
+	IsSeeker
 	)
 from .serializers import (
 	SeekerCreateSerializer,
@@ -40,23 +40,23 @@ class SeekerCreateView(CreateAPIView):
 class SeekerListView(ListAPIView):
 	queryset = Seeker.objects.all()
 	serializer_class = SeekerListSerializer
-	permission_classes = [IsAdminUser]
 	pagination_class = SeekerListPagination
+	permission_classes = [IsAuthenticated]
 
 class SeekerDetailView(RetrieveAPIView):
 	queryset = Seeker.objects.all()
 	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsAuthenticated]
 
 class SeekerUpdateView(RetrieveUpdateAPIView):
 	queryset = Seeker.objects.all()
 	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsAdminUser]#, IsOwnerOrReadOnly]
+	permission_classes = [IsSeeker]
 
 class SeekerDeleteView(DestroyAPIView):
 	queryset = Seeker.objects.all()
 	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsSeeker]
 		
 class SeekerLoginView(APIView):
 	serializer_class = SeekerLoginSerializer
@@ -69,4 +69,3 @@ class SeekerLoginView(APIView):
 			new_data = serializer.data
 			return Response(new_data, status=HTTP_200_OK)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-

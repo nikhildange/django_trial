@@ -1,6 +1,15 @@
+from django.db.models import Q
 from rest_framework.permissions import BasePermission
+from employers.models import (
+	Employer,
+	)
 
-class IsOwnerOrReadOnly(BasePermission):
-	message = "You must be OWNER of this job post."
+class IsEmployer(BasePermission):
+	message = "You must be EMPLOYER."
 	def has_object_permission(self, request, view, object):
-		return object.user == request.user
+		if request.user.is_superuser:
+			return True
+		else:
+			if Employer.objects.filter(user=request.user).exists():
+				return object.user == request.user
+			return False

@@ -24,44 +24,53 @@ from .models import (
 from .pagination import (
 	JobListPagination,
 	)
+from .permissions import (
+	IsOwner,
+	)
 from .serializers import (
 	ApplicationSerializer,
 	JobListSerializer,
 	JobDetailSerializer,
 	)
+from employers.permissions import (
+	IsEmployer,
+	)
+from seekers.permissions import (
+	IsSeeker,
+	)
 
 class JobCreateView(CreateAPIView):
 	queryset = Job.objects.all()
 	serializer_class = JobDetailSerializer
-	permission_classes = [AllowAny]
+	permission_classes = [IsEmployer]
 
 class JobListView(ListAPIView):
 	queryset = Job.objects.all()
 	serializer_class = JobListSerializer
-	permission_classes = [IsAdminUser]
 	pagination_class = JobListPagination
+	permission_classes = [IsAuthenticated]
 
 class JobDetailView(RetrieveAPIView):
 	queryset = Job.objects.all()
 	serializer_class = JobDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsAuthenticatedOrReadOnly]
 
 class JobUpdateView(RetrieveUpdateAPIView):
 	queryset = Job.objects.all()
 	serializer_class = JobDetailSerializer
-	permission_classes = [IsAdminUser]#, IsOwnerOrReadOnly]
+	permission_classes = [IsEmployer]
 
 class JobDeleteView(DestroyAPIView):
 	queryset = Job.objects.all()
 	serializer_class = JobDetailSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsEmployer]
 
 class ApplicationListView(ListAPIView):
 	queryset = Application.objects.all()
 	serializer_class = ApplicationSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsAuthenticatedOrReadOnly]
 
 class ApplicationDetailView(RetrieveUpdateDestroyAPIView):
 	queryset = Application.objects.all()
 	serializer_class = ApplicationSerializer
-	permission_classes = [IsAdminUser]
+	permission_classes = [IsSeeker]
