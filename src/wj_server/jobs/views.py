@@ -26,17 +26,13 @@ from .pagination import (
 	)
 from .permissions import (
 	IsOwner,
+	IsEmployer,
+	IsSeeker,
 	)
 from .serializers import (
 	ApplicationSerializer,
 	JobListSerializer,
 	JobDetailSerializer,
-	)
-from employers.permissions import (
-	IsEmployer,
-	)
-from seekers.permissions import (
-	IsSeeker,
 	)
 
 class JobCreateView(CreateAPIView):
@@ -70,7 +66,12 @@ class ApplicationListView(ListAPIView):
 	serializer_class = ApplicationSerializer
 	permission_classes = [IsAuthenticatedOrReadOnly]
 
-class ApplicationDetailView(RetrieveUpdateDestroyAPIView):
+class ApplicationCreateView(CreateAPIView):
+	queryset = Application.objects.all()
+	serializer_class = ApplicationSerializer
+	permission_classes = [IsSeeker]
+
+class ApplicationDestroyView(DestroyAPIView):
 	queryset = Application.objects.all()
 	serializer_class = ApplicationSerializer
 	permission_classes = [IsSeeker]

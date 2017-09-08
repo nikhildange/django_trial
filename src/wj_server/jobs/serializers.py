@@ -19,9 +19,10 @@ from .models import (
 class ApplicationSerializer(ModelSerializer):
 	class Meta:
 		model = Application
-		fields = ['seeker', 'job', 'application_status', 'applied_at']
+		fields = ['id', 'seeker', 'job', 'application_status', 'applied_at']
 		extra_kwargs = {
-		"applied_at":{"write_only":True}
+		 "application_status":{"read_only":True}
+		# "applied_at":{"write_only":True}
 		}
 
 

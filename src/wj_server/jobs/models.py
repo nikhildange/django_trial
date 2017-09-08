@@ -49,5 +49,5 @@ class Job(Model):
 class Application(Model):
 	seeker = ForeignKey(Seeker)
 	job = ForeignKey(Job)
-	application_status = CharField(max_length=10,null=False)
+	application_status = CharField(max_length=10,null=False,default="active")
 	applied_at = DateTimeField(auto_now_add=True)

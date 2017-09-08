@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models.signals import post_save
+# from django.db.models.signals import post_save
 from django.db.models import (
 	BooleanField,
 	CharField,
@@ -50,12 +50,12 @@ class Seeker(Model):
 	#token
 	fb_access_token = CharField(max_length=255,null=True)
 
-	USER_FIELD = 'email'
+	USERNAME_FIELD = 'email'
 
 	def __str__(self):
 		return self.user.email
 
-	def post_save_user_receiver(sender, instance, created, *args, **kwargs):
-		if created:
-			profile, is_created = Seeker.objects.get_or_create(user=instance)
-	post_save.connect(post_save_user_receiver, sender=User)
+	# def post_save_user_receiver(sender, instance, created, *args, **kwargs):
+	# 	if created:
+	# 		profile, is_created = Seeker.objects.get_or_create(user=instance)
+	# post_save.connect(post_save_user_receiver, sender=User)

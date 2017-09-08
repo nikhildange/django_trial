@@ -10,8 +10,11 @@ from rest_framework.serializers import (
 	SerializerMethodField,
 	ValidationError
 	)
+from rest_framework_jwt.settings import api_settings
 from .models import Employer
 
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 User = get_user_model()
 
 class EmployerDetailSerializer(ModelSerializer):
@@ -67,13 +70,18 @@ class EmployerLoginSerializer(ModelSerializer):
 		if user_obj:
 			if not user_obj.check_password(password):
 				raise ValidationError("Incorrect Credential. Please Try Again")
-		data["token"] = "RANDOM TOKEN"				
+		payload = jwt_payload_handler(user_obj)
+		token = jwt_encode_handler(payload)
+		data["token"] = token				
 		return data
 
 class EmployerCreateSerializer(ModelSerializer):
+	token = CharField(allow_blank=True, read_only=True)
 	username = CharField(source='user.username')
 	email = EmailField(source='user.email')
 	password = CharField(source='user.password')
+	contact_number = CharField(source='Employer.contact_number')
+	address = CharField(source='Employer.address')
 	class Meta:
 		model = Employer
 		fields = [
@@ -82,16 +90,11 @@ class EmployerCreateSerializer(ModelSerializer):
 		'password',
 		'contact_number',
 		'address',
+		'token',
 		]
 		extra_kwargs = {"password":
-							{"write_only": True},
-						"address":
 							{"write_only": True}
 						}
-
-	# def validate(self, data):
-	# 	email = data['email']
-	# 	return data
 
 	def validate_email(self, value):
 		email = value
@@ -100,25 +103,26 @@ class EmployerCreateSerializer(ModelSerializer):
 			raise ValidationError("This Email Exists.")
 		return value
 
-	def validated_contact_number(self, value):
-		# field_data = self.get_initial().get('email')
-		contact_number = value
-		contact_number_qs = User.objects.filter(contact_number=contact_number)
+	def validate(self, data):
+		contact_number = self.get_initial().get('contact_number')
+		contact_number_qs = Employer.objects.filter(contact_number=contact_number)
 		if contact_number_qs.exists():
 			raise ValidationError("This Contact Number Exists.")
-		return value
+		return data
 	
 	def create(self, validated_data):
 		user = validated_data['user']
 		username = user['username']
 		email = user['email']
 		password = user['password']
-		contact_number = validated_data['contact_number']
-		address = validated_data['address']
+		employer = validated_data['Employer']
+		contact_number = employer['contact_number']
+		address = employer['address']
 		print(address)
 		user_obj = User(
 			username = username,
 			email = email,
+			is_staff = True,
 			)
 		user_obj.set_password(password)
 		user_obj.save()
@@ -128,4 +132,7 @@ class EmployerCreateSerializer(ModelSerializer):
 			address = address
 			)
 		employer_obj.save()
+		payload = jwt_payload_handler(user_obj)
+		token = jwt_encode_handler(payload)
+		validated_data["token"] = token
 		return validated_data
