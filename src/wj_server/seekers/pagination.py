@@ -3,5 +3,6 @@ from rest_framework.pagination import (
 	)
 
 class SeekerListPagination(PageNumberPagination):
-	page_size = 2
-		
+	page_size = 10
+	class Meta:
+		ordering = ['-id']

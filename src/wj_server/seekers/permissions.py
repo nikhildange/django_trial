@@ -6,6 +6,15 @@ from seekers.models import (
 
 class IsSeeker(BasePermission):
 	message = "You must be SEEKER."
+	
+	def has_permission(self, request, view): #required while creation
+		if request.user.is_superuser:
+			return True
+		else:
+			if Seeker.objects.filter(user=request.user).exists():
+				return True
+			return False
+		
 	def has_object_permission(self, request, view, object):
 		if request.user.is_superuser:
 			return True
@@ -13,4 +22,3 @@ class IsSeeker(BasePermission):
 			if Seeker.objects.filter(user=request.user).exists():
 				return object.user == request.user
 			return False
-	

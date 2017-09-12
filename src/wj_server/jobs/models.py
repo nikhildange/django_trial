@@ -13,7 +13,6 @@ from django_mysql.models import (
 	)
 from seekers.models import Seeker
 from employers.models import Employer
-# Create your models here.
 
 class Job(Model):
 	employer = ForeignKey(Employer)
@@ -23,7 +22,6 @@ class Job(Model):
 	description = CharField(max_length=200,null=False)
 	opening_count = IntegerField(null=True)
 	urgent = BooleanField(default=False)
-	work_time = JSONField(null=True)
 	address = CharField(max_length=100,null=True)
 	station = CharField(max_length=20,null=True)
 	incentive = CharField(max_length=100,null=True)
@@ -47,7 +45,10 @@ class Job(Model):
 		return self.job_type + ' ' + self.job_title
 
 class Application(Model):
-	seeker = ForeignKey(Seeker)
-	job = ForeignKey(Job)
+	seeker = ForeignKey(Seeker,null=False)
+	job = ForeignKey(Job,null=False)
 	application_status = CharField(max_length=10,null=False,default="active")
 	applied_at = DateTimeField(auto_now_add=True)
+	
+	class Meta:
+		unique_together = ('seeker','job')

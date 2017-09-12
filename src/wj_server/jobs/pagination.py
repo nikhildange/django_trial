@@ -3,5 +3,7 @@ from rest_framework.pagination import (
 	)
 
 class JobListPagination(PageNumberPagination):
-	page_size = 2
+	page_size = 10
+	class Meta:
+		ordering = ['-id']
 		

@@ -4,6 +4,7 @@ from rest_framework.generics import (
 	DestroyAPIView,
 	RetrieveAPIView,
 	RetrieveUpdateAPIView,
+	RetrieveUpdateDestroyAPIView,
 	ListAPIView,
 	)
 from rest_framework.permissions import (
@@ -13,7 +14,7 @@ from rest_framework.permissions import (
 	IsAuthenticatedOrReadOnly,
 	)
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_202_ACCEPTED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from .models import (
@@ -32,6 +33,8 @@ from .serializers import (
 	EmployerDetailSerializer,
 	)
 
+User = get_user_model()
+
 class EmployerCreateView(CreateAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerCreateSerializer
@@ -43,21 +46,20 @@ class EmployerListView(ListAPIView):
 	pagination_class = EmployerListPagination
 	permission_classes = [IsAuthenticated]
 
-class EmployerDetailView(RetrieveAPIView):
-	queryset = Employer.objects.all()
-	serializer_class = EmployerDetailSerializer
-	permission_classes = [IsAuthenticated]
-
-class EmployerUpdateView(RetrieveUpdateAPIView):
+class EmployerRUDView(RetrieveUpdateDestroyAPIView):
 	queryset = Employer.objects.all()
 	serializer_class = EmployerDetailSerializer
 	permission_classes = [IsEmployer]
 
-class EmployerDeleteView(DestroyAPIView):
-	queryset = Employer.objects.all()
-	serializer_class = EmployerDetailSerializer
-	permission_classes = [IsEmployer]
-		
+	def destroy(self, request, *args, **kwargs):
+		instance = self.get_object()
+		print(instance)
+		user = User.objects.get(email=instance.user.email)
+		print(user)
+		self.perform_destroy(instance)
+		# user.delete()
+		return Response(status=HTTP_202_ACCEPTED)
+
 class EmployerLoginView(APIView):
 	serializer_class = EmployerLoginSerializer
 	permission_classes = [AllowAny]

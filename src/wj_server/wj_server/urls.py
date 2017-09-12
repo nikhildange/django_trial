@@ -22,6 +22,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^employers/',include('employers.urls', namespace='employers-api')),
     url(r'^seekers/',include('seekers.urls', namespace='seekers-api')),
-    url(r'^jobs/',include('jobs.urls', namespace='jobs')),
+    url(r'^jobs/',include('jobs.urls', namespace='jobs-api')),
     url(r'^api-token-auth/',obtain_auth_token),
 ]

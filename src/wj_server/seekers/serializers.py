@@ -7,6 +7,7 @@ from django_mysql.models import (
 from rest_framework.serializers import (
 	CharField,
 	EmailField,
+	HyperlinkedIdentityField,
 	ModelSerializer,
 	SerializerMethodField,
 	ValidationError
@@ -20,37 +21,40 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 User = get_user_model()
 
-class SeekerDetailSerializer(ModelSerializer):
+class SeekerInfoSerializer(ModelSerializer):
 	class Meta:
 		model = User
 		fields = [
-		'username',
-		'email',
+		'id',
 		]
 
 class SeekerDetailSerializer(ModelSerializer):
-	user = SeekerDetailSerializer(read_only=True)
+	user = SeekerInfoSerializer(read_only=True)
+	email = SerializerMethodField()
 	class Meta:
 		model = Seeker
-		fields = ['user', 'gender', 'dob', 'seeker_status', 'contact_number', 'station_home',
+		fields = ['user', 'email', 'name', 'gender', 'dob', 'seeker_status', 'contact_number', 'station_home',
 		'education', 'certification', 'japanese_lang_level', 'jlpt_score',
 		'language_know', 'job_interested', 'job_experienced', 
 		'current_salary', 'urgent', 
 		'profile_pic_path', 'residance_card_path',
 		'created_at', 'updated_at', 'last_applied_at', 'last_login', 
 		'display_lang', 'fb_access_token']
+	def get_email(self, obj):
+		return str(obj.user.email)
 
 class SeekerListSerializer(ModelSerializer):
-	username = SerializerMethodField()
 	seeker_id = SerializerMethodField()
+	seeker_email = SerializerMethodField()
+	url = HyperlinkedIdentityField(
+		view_name = 'seekers-api:rud')
 	class Meta:
 		model = Seeker
-		fields = ['seeker_id', 'username']
+		fields = ['seeker_id', 'name', 'seeker_email', 'url', 'contact_number', 'display_lang']
 	def get_seeker_id(self, obj):
 		return str(obj.user.id)
-	def get_username(self, obj):
-		return str(obj.user.username)
-
+	def get_seeker_email(self, obj):
+		return str(obj.user.email)
 
 class SeekerLoginSerializer(ModelSerializer):
 	token = CharField(allow_blank=True, read_only=True)
@@ -86,16 +90,12 @@ class SeekerLoginSerializer(ModelSerializer):
 
 class SeekerCreateSerializer(ModelSerializer):
 	token = CharField(allow_blank=True, read_only=True)
-	username = CharField(source='user.username')
 	email = EmailField(source='user.email')
 	password = CharField(source='user.password')
-	contact_number = CharField(source='Seeker.contact_number')
 	class Meta:
 		model = Seeker
 		fields = [
-		'username',
 		'email',
-		'contact_number',
 		'password',
 		'token',
 		]
@@ -114,22 +114,11 @@ class SeekerCreateSerializer(ModelSerializer):
 			raise ValidationError("This Email Exists.")
 		return value
 
-	def validate(self, data):
-		contact_number = self.get_initial().get('contact_number')
-		contact_number_qs = Seeker.objects.filter(contact_number=contact_number)
-		if contact_number_qs.exists():
-			raise ValidationError("This Contact Number Exists.")
-		return data
-
 	def create(self, validated_data):
 		user = validated_data['user']
-		username = user['username']
 		email = user['email']
 		password = user['password']
-		seeker = validated_data['Seeker']
-		contact_number = seeker['contact_number']
 		user_obj = User(
-			username = username,
 			email = email,
 			is_staff = True,
 			)
@@ -137,7 +126,6 @@ class SeekerCreateSerializer(ModelSerializer):
 		user_obj.save()
 		seeker_obj = Seeker(
 			user = user_obj,
-			contact_number = contact_number,
 			)
 		seeker_obj.save()
 		payload = jwt_payload_handler(user_obj)

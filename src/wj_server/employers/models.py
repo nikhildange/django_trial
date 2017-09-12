@@ -20,6 +20,7 @@ def address_format():
 
 class Employer(Model):
 	user = OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
+	name = CharField(max_length=20, null=False)
 	#
 	contact_number = CharField(max_length=10, null=False)
 	address = JSONField(default=address_format)
@@ -28,4 +29,4 @@ class Employer(Model):
 	updated_at = DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.user.email
+		return self.name

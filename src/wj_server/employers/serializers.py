@@ -6,6 +6,7 @@ from django_mysql.models import (
 from rest_framework.serializers import (
 	CharField,
 	EmailField,
+	HyperlinkedIdentityField,
 	ModelSerializer,
 	SerializerMethodField,
 	ValidationError
@@ -17,30 +18,34 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 User = get_user_model()
 
-class EmployerDetailSerializer(ModelSerializer):
+class EmployerInfoSerializer(ModelSerializer):
 	class Meta:
 		model = User
 		fields = [
-		'username',
-		'email',
+		'id',
 		]
 		
 class EmployerDetailSerializer(ModelSerializer):
-	user = EmployerDetailSerializer(read_only=True)
+	user = EmployerInfoSerializer(read_only=True)
+	email = SerializerMethodField()
 	class Meta:
 		model = Employer
-		fields = ['user', 'contact_number', 'address', 'created_at']
+		fields = ['user', 'email', 'contact_number', 'address', 'created_at']
+	def get_email(self, obj):
+		return str(obj.user.email)
 
 class EmployerListSerializer(ModelSerializer):
-	username = SerializerMethodField()
+	email = SerializerMethodField()
 	employer_id = SerializerMethodField()
+	url = HyperlinkedIdentityField(
+		view_name = 'employers-api:rud')
 	class Meta:
 		model = Employer
-		fields = ['employer_id','username']
+		fields = ['employer_id','email','url']
 	def get_employer_id(self, obj):
 		return str(obj.user.id)
-	def get_username(self, obj):
-		return str(obj.user.username)
+	def get_email(self, obj):
+		return str(obj.user.email)
 
 
 class EmployerLoginSerializer(ModelSerializer):
@@ -77,15 +82,15 @@ class EmployerLoginSerializer(ModelSerializer):
 
 class EmployerCreateSerializer(ModelSerializer):
 	token = CharField(allow_blank=True, read_only=True)
-	username = CharField(source='user.username')
 	email = EmailField(source='user.email')
 	password = CharField(source='user.password')
+	name = CharField(source='Employer.name')
 	contact_number = CharField(source='Employer.contact_number')
 	address = CharField(source='Employer.address')
 	class Meta:
 		model = Employer
 		fields = [
-		'username',
+		'name',
 		'email',
 		'password',
 		'contact_number',
@@ -112,15 +117,13 @@ class EmployerCreateSerializer(ModelSerializer):
 	
 	def create(self, validated_data):
 		user = validated_data['user']
-		username = user['username']
 		email = user['email']
 		password = user['password']
 		employer = validated_data['Employer']
+		name = employer['name']
 		contact_number = employer['contact_number']
 		address = employer['address']
-		print(address)
 		user_obj = User(
-			username = username,
 			email = email,
 			is_staff = True,
 			)
@@ -128,6 +131,7 @@ class EmployerCreateSerializer(ModelSerializer):
 		user_obj.save()
 		employer_obj = Employer(
 			user = user_obj,
+			name = name,
 			contact_number = contact_number,
 			address = address
 			)

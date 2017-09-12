@@ -2,9 +2,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.generics import (
 	CreateAPIView,
 	DestroyAPIView,
+	ListAPIView,
 	RetrieveAPIView,
 	RetrieveUpdateAPIView,
-	ListAPIView,
+	RetrieveUpdateDestroyAPIView,
 	)
 from rest_framework.permissions import (
 	AllowAny,
@@ -42,22 +43,7 @@ class SeekerListView(ListAPIView):
 	serializer_class = SeekerListSerializer
 	pagination_class = SeekerListPagination
 	permission_classes = [IsAuthenticated]
-
-class SeekerDetailView(RetrieveAPIView):
-	queryset = Seeker.objects.all()
-	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsAuthenticated]
-
-class SeekerUpdateView(RetrieveUpdateAPIView):
-	queryset = Seeker.objects.all()
-	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsSeeker]
-
-class SeekerDeleteView(DestroyAPIView):
-	queryset = Seeker.objects.all()
-	serializer_class = SeekerDetailSerializer
-	permission_classes = [IsSeeker]
-		
+			
 class SeekerLoginView(APIView):
 	serializer_class = SeekerLoginSerializer
 	permission_classes = [AllowAny]
@@ -69,3 +55,8 @@ class SeekerLoginView(APIView):
 			new_data = serializer.data
 			return Response(new_data, status=HTTP_200_OK)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+		
+class SeekerRUDView(RetrieveUpdateDestroyAPIView):
+	queryset = Seeker.objects.all()
+	serializer_class = SeekerDetailSerializer
+	permission_classes = [IsSeeker]

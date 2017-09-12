@@ -6,6 +6,15 @@ from employers.models import (
 
 class IsEmployer(BasePermission):
 	message = "You must be EMPLOYER."
+
+	def has_permission(self, request, view): #required while creation
+		if request.user.is_superuser:
+			return True
+		else:
+			if Employer.objects.filter(user=request.user).exists():
+				return True
+			return False
+
 	def has_object_permission(self, request, view, object):
 		if request.user.is_superuser:
 			return True
