@@ -21,34 +21,42 @@ from django_mysql.models import (
 
 User = settings.AUTH_USER_MODEL
 
+def near_station():
+	return {"near_prefecture":"","near_city":"","near_station":""}
+
 class Seeker(Model):
 	user = OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=CASCADE)
-	name = CharField(max_length=15,null=True)
 	gender = CharField(max_length=6,null=True)
 	dob = DateField(null=True)
-	seeker_status = CharField(max_length=10,null=True)
+	nationality = CharField(max_length=10,null=True)
+	visa_type = CharField(max_length=10,null=True)
 	#contact
-	contact_number = CharField(max_length=10,null=True,unique=True)
-	station_home = CharField(max_length=20,null=True)
+	phone_number = CharField(max_length=10,null=True,unique=True)
+	phone_country_code = CharField(max_length=5,null=True)
+	near_station = JSONField(default=near_station)
 	#skill
 	education = CharField(max_length=20,null=True)
-	certification = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
+	certificate = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
 	japanese_lang_level = IntegerField(null=True)
 	jlpt_score = IntegerField(null=True)
-	language_know = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
+	lang_known = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
 	job_interested = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
 	job_experienced = ListCharField(base_field=CharField(max_length=10),size=10,max_length=(10*11),null=True)
-	current_salary = IntegerField(null=True)
-	urgent = BooleanField(default=False)
+	current_hourly_salary = IntegerField(null=True)
 	#file path
-	profile_pic_path = FilePathField(null=True)
-	residance_card_path = FilePathField(null=True)
+	id_photo_path = FilePathField(blank=True,null=True)
+	profile_pic_path = FilePathField(blank=True,null=True)
+	residence_card_path = FilePathField(blank=True,null=True)
+	intro_voice_path = FilePathField(blank=True,null=True)
 	#time
 	created_at = DateTimeField(auto_now_add=True)
 	updated_at = DateTimeField(auto_now=True)
-	last_applied_at = DateTimeField(auto_now=True)
+	last_application = DateTimeField(null=True)
 	last_login = DateTimeField(auto_now=True)
-	display_lang = CharField(max_length=10,null=True)
+	is_disabled = BooleanField(default=False)
+	disp_lang = CharField(max_length=10,null=True)
+	seeker_status = CharField(max_length=10,null=True)
+	urgent = BooleanField(default=False)
 	#token
 	fb_access_token = CharField(max_length=255,null=True)
 

@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django_mysql.models import (
-	JSONField
-	)
 from rest_framework.serializers import (
+	BooleanField,
 	CharField,
 	EmailField,
 	HyperlinkedIdentityField,
@@ -17,33 +15,56 @@ from .models import Employer
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 User = get_user_model()
-
-class EmployerInfoSerializer(ModelSerializer):
-	class Meta:
-		model = User
-		fields = [
-		'id',
-		]
 		
 class EmployerDetailSerializer(ModelSerializer):
-	user = EmployerInfoSerializer(read_only=True)
-	email = SerializerMethodField()
+	employer_id = SerializerMethodField()
+	email = EmailField(source="user.email")
+	first_name = CharField(source="user.first_name")
+	last_name = CharField(source="user.last_name")
 	class Meta:
 		model = Employer
-		fields = ['user', 'email', 'contact_number', 'address', 'created_at']
+		fields = [
+		'employer_id',
+		'email',
+		'first_name',
+		'last_name', 
+		'phone_number', 
+		'fax_number', 
+		'is_admin', 
+		'is_disabled',
+		]
+	def get_employer_id(self, obj):
+		return str(obj.user.id)
 	def get_email(self, obj):
 		return str(obj.user.email)
+	def get_first_name(self, obj):
+		return str(obj.user.first_name)
+	def get_last_name(self, obj):
+		return str(obj.user.last_name)
+
+	def update(self, instance, validated_data):
+		if 'user' in validated_data:
+			user_value = validated_data["user"]
+			User.objects.filter(pk=instance.user.pk).update(**user_value)
+			validated_data.pop('user')
+
+		if len(validated_data)>0:
+			Employer.objects.filter(pk=instance.user.pk).update(**validated_data)
+		return instance
 
 class EmployerListSerializer(ModelSerializer):
-	email = SerializerMethodField()
 	employer_id = SerializerMethodField()
+	first_name = SerializerMethodField()
+	email = SerializerMethodField()
 	url = HyperlinkedIdentityField(
 		view_name = 'employers-api:rud')
 	class Meta:
 		model = Employer
-		fields = ['employer_id','email','url']
+		fields = ['employer_id', 'first_name', 'email', 'url']
 	def get_employer_id(self, obj):
 		return str(obj.user.id)
+	def get_first_name(self, obj):
+		return str(obj.user.first_name)
 	def get_email(self, obj):
 		return str(obj.user.email)
 
@@ -81,20 +102,25 @@ class EmployerLoginSerializer(ModelSerializer):
 		return data
 
 class EmployerCreateSerializer(ModelSerializer):
-	token = CharField(allow_blank=True, read_only=True)
 	email = EmailField(source='user.email')
+	first_name = CharField(source='user.first_name')
+	last_name = CharField(source='user.last_name')
+	phone_number = CharField(source='Employer.phone_number')
+	fax_number = CharField(source='Employer.fax_number')
+	is_admin = BooleanField(source='Employer.is_admin')
 	password = CharField(source='user.password')
-	name = CharField(source='Employer.name')
-	contact_number = CharField(source='Employer.contact_number')
-	address = CharField(source='Employer.address')
+	token = CharField(allow_blank=True, read_only=True)
 	class Meta:
 		model = Employer
 		fields = [
-		'name',
 		'email',
+		'first_name',
+		'last_name', 
+
+		'phone_number', 
+		'fax_number', 
+		'is_admin',
 		'password',
-		'contact_number',
-		'address',
 		'token',
 		]
 		extra_kwargs = {"password":
@@ -109,31 +135,39 @@ class EmployerCreateSerializer(ModelSerializer):
 		return value
 
 	def validate(self, data):
-		contact_number = self.get_initial().get('contact_number')
-		contact_number_qs = Employer.objects.filter(contact_number=contact_number)
-		if contact_number_qs.exists():
-			raise ValidationError("This Contact Number Exists.")
+		phone_number = self.get_initial().get('phone_number')
+		phone_number_qs = Employer.objects.filter(phone_number=phone_number)
+		if phone_number_qs.exists():
+			raise ValidationError("This phone Number Exists.")
+		fax_number = self.get_initial().get('fax_number')
+		fax_number_qs = Employer.objects.filter(fax_number=fax_number)
+		if fax_number_qs.exists():
+			raise ValidationError("This Fax Number Exists.")
 		return data
-	
+
 	def create(self, validated_data):
 		user = validated_data['user']
 		email = user['email']
 		password = user['password']
+		first_name = user['first_name']
+		last_name = user['last_name']
 		employer = validated_data['Employer']
-		name = employer['name']
-		contact_number = employer['contact_number']
-		address = employer['address']
+		phone_number = employer['phone_number']
+		fax_number = employer['fax_number']
+		is_admin = employer['is_admin']
 		user_obj = User(
-			email = email,
-			is_staff = True,
+			email=email,
+			is_staff=True,
+			first_name=first_name,
+			last_name=last_name
 			)
 		user_obj.set_password(password)
 		user_obj.save()
 		employer_obj = Employer(
 			user = user_obj,
-			name = name,
-			contact_number = contact_number,
-			address = address
+			phone_number = phone_number,
+			fax_number = fax_number,
+			is_admin = is_admin
 			)
 		employer_obj.save()
 		payload = jwt_payload_handler(user_obj)

@@ -1,12 +1,8 @@
 from django.conf import settings
 from django.db.models import (
 	BooleanField,
-	CharField,
-	EmailField,
-	ForeignKey,
-	IntegerField, 
+	CharField, 
 	DateTimeField,
-	ManyToManyField, 
 	Model,
 	OneToOneField
 	)
@@ -15,18 +11,17 @@ from django_mysql.models import (
 	ListCharField
 )
 
-def address_format():
-	return {'building':'','district':'','pincode':''}
-
 class Employer(Model):
 	user = OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
-	name = CharField(max_length=20, null=False)
 	#
-	contact_number = CharField(max_length=10, null=False)
-	address = JSONField(default=address_format)
+	phone_number = CharField(max_length=10, null=False)
+	fax_number = CharField(max_length=10, null=False)
 	#time
 	created_at = DateTimeField(auto_now_add=True)
 	updated_at = DateTimeField(auto_now=True)
+	#
+	is_admin = BooleanField(default=False)
+	is_disabled = BooleanField(default=False)
 
 	def __str__(self):
-		return self.name
+		return self.user.email

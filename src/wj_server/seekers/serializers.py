@@ -26,35 +26,87 @@ class SeekerInfoSerializer(ModelSerializer):
 		model = User
 		fields = [
 		'id',
+		'first_name',
+		'last_name',
+		'email',
 		]
 
 class SeekerDetailSerializer(ModelSerializer):
-	user = SeekerInfoSerializer(read_only=True)
-	email = SerializerMethodField()
+	seeker_id = SerializerMethodField()
+	email = EmailField(source="user.email")
+	first_name = CharField(source="user.first_name")
+	last_name = CharField(source="user.last_name")
 	class Meta:
 		model = Seeker
-		fields = ['user', 'email', 'name', 'gender', 'dob', 'seeker_status', 'contact_number', 'station_home',
-		'education', 'certification', 'japanese_lang_level', 'jlpt_score',
-		'language_know', 'job_interested', 'job_experienced', 
-		'current_salary', 'urgent', 
-		'profile_pic_path', 'residance_card_path',
-		'created_at', 'updated_at', 'last_applied_at', 'last_login', 
-		'display_lang', 'fb_access_token']
+		fields = [
+		'seeker_id',
+		'email',
+		'first_name',
+		'last_name',
+		'gender',
+		'dob',
+		'nationality',
+		'visa_type',
+		'education',
+		'certificate',
+		'lang_known',
+		'japanese_lang_level',
+		'jlpt_score',
+		'job_interested',
+		'job_experienced',
+		'current_hourly_salary',
+		'phone_country_code',
+		'phone_number',
+		'id_photo_path',
+		'profile_pic_path',
+		'residence_card_path',
+		'intro_voice_path',
+		'near_station', #{“near_prefecture”:””,”near_city”:””,”near_station”:””}
+		'fb_access_token',
+		'disp_lang',
+		'urgent',
+		'seeker_status',
+		'last_application',
+		'last_login',
+		'is_disabled',
+		'created_at',
+		'updated_at'
+		]
+	def get_seeker_id(self, obj):
+		return str(obj.user.id)
 	def get_email(self, obj):
 		return str(obj.user.email)
+	def get_first_name(self, obj):
+		return str(obj.user.first_name)
+	def get_last_name(self, obj):
+		return str(obj.user.last_name)
+
+	def update(self, instance, validated_data):
+
+		if 'user' in validated_data:
+			user_value = validated_data["user"]
+			User.objects.filter(pk=instance.user.pk).update(**user_value)
+			validated_data.pop('user')
+
+		if len(validated_data)>0:
+			Seeker.objects.filter(pk=instance.user.pk).update(**validated_data)
+
+		# User.objects.filter(pk=instance.user.pk).update(user_value.keys(),user_value.values())
+		# User.objects.filter(pk=instance.user.pk).update(first_name=user_value['first_name'],last_name=user_value['last_name'])
+		# print(user_obj)
+		# user.first_name = user_obj["first_name"]
+		# user.last_name = user_obj["last_name"]
+		# user.save(update_fields=['first_name','last_name'])
+		# instance.save(update_fields=fields)
+		return instance
 
 class SeekerListSerializer(ModelSerializer):
-	seeker_id = SerializerMethodField()
-	seeker_email = SerializerMethodField()
+	user = SeekerInfoSerializer(read_only=True)
 	url = HyperlinkedIdentityField(
 		view_name = 'seekers-api:rud')
 	class Meta:
 		model = Seeker
-		fields = ['seeker_id', 'name', 'seeker_email', 'url', 'contact_number', 'display_lang']
-	def get_seeker_id(self, obj):
-		return str(obj.user.id)
-	def get_seeker_email(self, obj):
-		return str(obj.user.email)
+		fields = ['user', 'url', 'phone_number', 'disp_lang']
 
 class SeekerLoginSerializer(ModelSerializer):
 	token = CharField(allow_blank=True, read_only=True)
